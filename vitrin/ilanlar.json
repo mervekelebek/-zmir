@@ -1,0 +1,44 @@
+[
+    {
+        "id": 1,
+        "isim": "deneme",
+        "tel": "5514876888",
+        "tel2": "",
+        "yas": "27",
+        "boy": "165",
+        "kilo": "50",
+        "il": "Adıyaman",
+        "semt": "Merkez",
+        "gorusme": "genel",
+        "sabit": false,
+        "sabit_hafta": 0,
+        "sabit_bitis_tarihi": null,
+        "galeri": [
+            "/static/uploads/reklamalani-1024x683.png"
+        ],
+        "ana_gorsel": "/static/uploads/reklamalani-1024x683.png",
+        "video": "",
+        "aciklama": "ilan deneme amaçlıdır"
+    },
+    {
+        "id": 2,
+        "isim": "örnek",
+        "tel": "5514876888",
+        "tel2": "",
+        "yas": "28",
+        "boy": "169",
+        "kilo": "55",
+        "il": "Aydın",
+        "semt": "Efeler",
+        "gorusme": "araba",
+        "sabit": false,
+        "sabit_hafta": 0,
+        "sabit_bitis_tarihi": null,
+        "galeri": [
+            "/static/uploads/REKLAM-3.png"
+        ],
+        "ana_gorsel": "/static/uploads/REKLAM-3.png",
+        "video": "",
+        "aciklama": "ilan reklamı denme amaçlıdır"
+    }
+]

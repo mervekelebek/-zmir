@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>VIP Site Yönetim Paneli</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;margin:0;padding:20px;}
+.header{display:flex;justify-content:space-between;align-items:center;background:#1e293b;padding:15px 25px;border-radius:8px;margin-bottom:25px;}
+.box{background:#1e293b;padding:20px;border-radius:8px;margin-bottom:25px;border:1px solid #334155;}
+h3{margin-top:0;color:#38bdf8;}
+input,textarea,select{width:100%;padding:10px;margin:6px 0 15px 0;background:#0f172a;border:1px solid #334155;color:white;border-radius:4px;box-sizing:border-box;}
+button{background:#28a745;color:white;padding:10px 20px;border:none;font-weight:bold;border-radius:4px;cursor:pointer;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #334155;font-size:13px;}
+th{background:#0f172a;color:#94a3b8;}
+.sil-btn{background:#dc3545;color:white;padding:5px 10px;text-decoration:none;border-radius:3px;font-size:12px;}
+.duzenle-btn{background:#38bdf8;color:#0f172a;padding:5px 10px;text-decoration:none;border-radius:3px;font-size:12px;font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="header">
+<h2 style="margin:0;color:#ff4757;">⚙️ YÖNETİM PANELİ</h2>
+<div>
+<a href="/" target="_blank" style="color:#38bdf8;text-decoration:none;margin-right:15px;">🌐 Sitede Gör</a>
+<a href="/admin/cikis" style="color:#f87171;text-decoration:none;font-weight:bold;">Çıkış Yap</a>
+</div>
+</div>
+
+<!-- WhatsApp Kanalı Yönetim Kutusu -->
+<div class="box">
+<h3>💬 WhatsApp Kanalı Linki Ayarı</h3>
+<form method="POST" action="/admin/whatsapp-guncelle">
+<label>WhatsApp Kanal Davet Linki:</label>
+<input type="text" name="whatsapp_link" value="{{ ayarlar.whatsapp_link }}" placeholder="https://whatsapp.com/channel/..." required>
+<button type="submit" style="background:#0284c7;">WhatsApp Kanal Linkini Güncelle</button>
+</form>
+</div>
+
+<div class="box">
+<h3>✨ Karşılama Popup (Açılış Penceresi) Ayarları</h3>
+<form method="POST" action="/admin/popup-guncelle">
+<div style="margin-bottom:15px;">
+<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:bold;color:#38bdf8;">
+<input type="checkbox" name="popup_aktif" value="1" {% if ayarlar.popup_aktif %}checked{% endif %} style="width:20px;height:20px;"> Ziyaretçiler Siteye Girince Karşılama Penceresi Gösterilsin
+</label>
+</div>
+<label>Popup Başlığı:</label>
+<input type="text" name="popup_baslik" value="{{ ayarlar.popup_baslik }}" required>
+<label>Popup Açıklama Metni:</label>
+<textarea name="popup_metin" rows="3" required>{{ ayarlar.popup_metin }}</textarea>
+<button type="submit" style="background:#0284c7;">Popup Ayarlarını Kaydet</button>
+</form>
+</div>
+
+<div class="box">
+<h3>📝 Banner Yazılarını ve Görselini Düzenle</h3>
+<form method="POST" action="/admin/banner-guncelle" enctype="multipart/form-data">
+<div style="margin-bottom:10px;"><img src="{{ ayarlar.banner_gorsel }}" style="max-height:120px;border-radius:4px;display:block;margin-bottom:10px;"></div>
+<label>Yeni Banner Görseli Seç (Opsiyonel):</label>
+<input type="file" name="banner_dosya" accept="image/*">
+<label>Banner Ana Başlık:</label>
+<input type="text" name="karsilama_baslik" value="{{ ayarlar.karsilama_baslik }}" required>
+<label>Banner Alt Açıklama Metni:</label>
+<textarea name="karsilama_metin" rows="2" required>{{ ayarlar.karsilama_metin }}</textarea>
+<button type="submit" style="background:#0284c7;">Banner Ayarlarını Güncelle</button>
+</form>
+</div>
+
+<div class="box">
+<h3>➕ Yeni İlan Ekle</h3>
+<form method="POST" action="/admin/ilan-ekle" enctype="multipart/form-data">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+<div><label>Model İsmi:</label><input type="text" name="isim" required></div>
+<div><label>1. Telefon / WhatsApp:</label><input type="text" name="tel" required></div>
+<div><label>2. Telefon (Opsiyonel):</label><input type="text" name="tel2"></div>
+<div><label>Yaş:</label><input type="text" name="yas" required></div>
+<div><label>Boy / Kilo:</label><input type="text" name="boy" placeholder="1.70" required style="margin-bottom:5px;"><input type="text" name="kilo" placeholder="52" required></div>
+<div><label>Şehir (İl - 81 İl):</label><select name="il" id="yonetimIl" onchange="yonetimIlceler()" required><option value="">İl Seçin</option>{% for il in sehirler.keys() %}<option value="{{ il }}">{{ il }}</option>{% endfor %}</select></div>
+<div><label>Semt / İlçe:</label><select name="semt" id="yonetimSemt" required><option value="">Önce İl Seçin</option></select></div>
+<div><label>Görüşme Yeri:</label><input type="text" name="gorusme" placeholder="Ev & Otel vb." required></div>
+</div>
+<script>const yonetimSehirler={{ sehirler|tojson }};function yonetimIlceler(){const il=document.getElementById('yonetimIl').value;const semtSelect=document.getElementById('yonetimSemt');semtSelect.innerHTML='';if(il&&yonetimSehirler[il]){yonetimSehirler[il].forEach(semt=>{let opt=document.createElement('option');opt.value=semt;opt.innerHTML=semt;semtSelect.appendChild(opt);});}}</script>
+<div style="background:#0f172a;padding:12px;border-radius:4px;border:1px solid #334155;margin-bottom:15px;">
+<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:bold;color:#38bdf8;"><input type="checkbox" name="sabit" value="1" style="width:20px;height:20px;"> 📌 Bu İlanı Vitrinde Başa Sabitle (Max 10 İlan)</label>
+<label style="margin-top:10px;display:block;">Sabitleme Süresi (1 - 4 Hafta):</label>
+<select name="sabit_hafta" style="margin-top:3px;"><option value="1">1 Hafta</option><option value="2">2 Hafta</option><option value="3">3 Hafta</option><option value="4">4 Hafta</option></select>
+</div>
+<label>Fotoğraflar (En fazla 3 adet):</label><input type="file" name="fotolar" accept="image/*" multiple required>
+<label>Model Videosu (Opsiyonel):</label><input type="file" name="video_dosya" accept="video/*">
+<label>İlan Açıklaması:</label><textarea name="aciklama" rows="3" required></textarea>
+<button type="submit">İlanı Yayınla</button>
+</form>
+</div>
+
+<div class="box">
+<h3>🔍 İlan Ara (İsim, Şehir veya Numara)</h3>
+<form method="GET" action="/admin" style="display:flex;gap:10px;">
+<input type="text" name="q" value="{{ arama_sorgu }}" placeholder="İsim, Şehir veya Telefon Numarası ile ara..." style="margin:0;">
+<button type="submit" style="padding:10px 20px;margin:0;">Ara</button>
+{% if arama_sorgu %}<a href="/admin" style="background:#64748b;color:white;padding:10px 15px;border-radius:4px;text-decoration:none;font-weight:bold;display:flex;align-items:center;">Temizle</a>{% endif %}
+</form>
+</div>
+
+<div class="box">
+<h3>📋 Aktif İlanlar (Toplam Sabit: {{ sabit_sayisi }}/10)</h3>
+<table>
+<tr><th>Fotoğraf</th><th>İsim</th><th>Şehir / Semt</th><th>Telefon</th><th>Sabit</th><th>İşlemler</th></tr>
+{% for ilan in ilanlar %}
+<tr>
+<td><img src="{{ ilan.ana_gorsel }}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
+<td><b>{{ ilan.isim }}</b></td>
+<td>{{ ilan.il }} / {{ ilan.semt }}</td>
+<td>{{ ilan.tel }}</td>
+<td><span style="color:#ffc107;font-weight:bold;">{% if ilan.sabit %}⭐ ({{ ilan.sabit_hafta }}H){% else %}-{% endif %}</span></td>
+<td style="display:flex;gap:8px;"><a href="/admin/ilan-duzenle/{{ ilan.id }}" class="duzenle-btn">Düzenle</a><a href="/admin/ilan-sil/{{ ilan.id }}" class="sil-btn" onclick="return confirm('Bu ilanı silmek istediğinize emin misiniz?')">Sil</a></td>
+</tr>
+{% endfor %}
+</table>
+</div>
+</body>
+</html>

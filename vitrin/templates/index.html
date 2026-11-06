@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ ayarlar.site_basligi }}</title>
+    <style>
+        body{font-family:Arial,sans-serif;background:#121212;color:#fff;margin:0;padding:0;}
+        header{background:#1f1f1f;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;}
+        h1{margin:0;font-size:20px;color:#ff4757;text-transform:lowercase;}
+        .hero-banner{width:100%;height:75vh;background:linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.85)),url('{{ ayarlar.banner_gorsel }}') no-repeat center center;background-size:cover;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 30px;border-bottom:5px solid #ff4757;}
+        .hero-banner h2{font-size:38px;color:#fff;margin-bottom:15px;}
+        .hero-banner p{font-size:18px;color:#eee;max-width:700px;margin-bottom:25px;line-height:1.5;}
+        .hero-btn{background:#25D366;color:white;padding:15px 30px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:17px;}
+        .slider-bar{background:#ff4757;color:white;padding:12px;font-weight:bold;font-size:14px;overflow:hidden;white-space:nowrap;}
+        .slider-text{display:inline-block;padding-left:100%;animation:marquee 25s linear infinite;}
+        @keyframes marquee{0%{transform:translate(0,0);}100%{transform:translate(-100%,0);}}
+        .filter-box{background:#1e293b;max-width:800px;margin:20px auto;padding:20px;border-radius:8px;border:1px solid #334155;text-align:center;}
+        .filter-box select,.filter-box button{padding:10px 15px;margin:5px;border-radius:4px;border:none;font-size:14px;}
+        .filter-box select{background:#0f172a;color:white;border:1px solid #475569;}
+        .filter-box button{background:#38bdf8;color:#0f172a;font-weight:bold;cursor:pointer;}
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;background:#333;margin-top:20px;}
+        @media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr);}}
+        .card{background:#1e1e1e;position:relative;text-decoration:none;color:white;display:flex;flex-direction:column;overflow:hidden;border-radius:6px;}
+        .card-img-wrap{position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;}
+        .card img{width:100%;height:100%;object-fit:cover;display:block;}
+        .badge-sabit{position:absolute;top:6px;left:6px;color:#ffd700;font-size:11px;background:rgba(0,0,0,0.6);padding:2px 5px;border-radius:3px;text-shadow:0 1px 2px rgba(0,0,0,0.8);}
+        .card-info{padding:8px 10px;background:#1e1e1e;display:flex;flex-direction:column;gap:3px;font-size:12px;color:#cbd5e1;}
+        .card-info .c-isim{font-size:14px;font-weight:bold;color:#fff;}
+        .tel-serit{background:#25d366;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:bold;margin-top:auto;}
+        
+        /* Captcha Popup Stilleri */
+        .popup-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:9999;padding:20px;}
+        .popup-box{background:#1e293b;border:1px solid #334155;max-width:480px;width:100%;padding:30px;border-radius:12px;text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);}
+        .popup-box h2{color:#38bdf8;margin-top:0;font-size:22px;}
+        .popup-box p{color:#cbd5e1;font-size:15px;line-height:1.6;margin-bottom:20px;}
+        .popup-btn{background:#25D366;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:block;margin-bottom:15px;font-size:15px;}
+        
+        /* Robot Doğrulama Kutusu */
+        .captcha-container{background:#0f172a;border:1px solid #334155;padding:15px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+        .captcha-left{display:flex;align-items:center;gap:12px;}
+        .captcha-left input[type="checkbox"]{width:22px;height:22px;cursor:pointer;}
+        .captcha-left label{font-size:14px;color:#f8fafc;cursor:pointer;font-weight:bold;}
+        .captcha-brand{font-size:10px;color:#64748b;text-align:right;}
+        
+        .popup-close{background:#38bdf8;color:#0f172a;border:none;padding:12px 20px;border-radius:6px;font-weight:bold;cursor:pointer;width:100%;font-size:15px;opacity:0.5;pointer-events:none;transition:0.2s;}
+        .popup-close.active{opacity:1;pointer-events:auto;}
+    </style>
+</head>
+<body>
+
+{% if ayarlar.popup_aktif %}
+<div class="popup-overlay" id="welcomePopup">
+    <div class="popup-box">
+        <h2>{{ ayarlar.popup_baslik }}</h2>
+        <p>{{ ayarlar.popup_metin }}</p>
+        <a href="{{ ayarlar.whatsapp_link }}" target="_blank" class="popup-btn">💬 WhatsApp Gurubuna Katıl</a>
+        
+        <!-- Ben Robot Değilim Kutusu -->
+        <div class="captcha-container">
+            <div class="captcha-left">
+                <input type="checkbox" id="robotCheck" onchange="toggleGirisButton()">
+                <label for="robotCheck">Ben robot değilim</label>
+            </div>
+            <div class="captcha-brand">
+                🛡️ Güvenlik<br>Doğrulaması
+            </div>
+        </div>
+
+        <button class="popup-close" id="girisBtn" onclick="siteyeGirisYap()">Siteye Giriş Yap</button>
+    </div>
+</div>
+{% endif %}
+
+<div class="slider-bar"><div class="slider-text">{% for duyuru in ayarlar.kayan_duyurular %}📢 {{ duyuru }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}</div></div>
+<header>
+    <h1>{{ ayarlar.site_basligi }}</h1>
+    <div style="display:flex;gap:10px;align-items:center;">
+        <a href="/admin/giris" style="background:#ff4757;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:13px;font-weight:bold;">🔑 VIP Giriş</a>
+    </div>
+</header>
+
+<div class="hero-banner">
+    <h2>{{ ayarlar.karsilama_baslik }}</h2>
+    <p>{{ ayarlar.karsilama_metin }}</p>
+    <a href="{{ ayarlar.whatsapp_link }}" target="_blank" class="hero-btn">💬 WhatsApp Gurubuna Katıl</a>
+</div>
+
+<div class="filter-box">
+    <h4 style="margin-top:0;color:#38bdf8;">📍 İlanları Kolayca Bulun</h4>
+    <form method="GET" action="/">
+        <select name="il" id="ilSelect" onchange="ilcelerDoldur()">
+            <option value="">Tüm Şehirler (81 İl)</option>
+            {% for il in sehirler.keys() %}
+            <option value="{{ il }}" {% if secilen_il == il %}selected{% endif %}>{{ il }}</option>
+            {% endfor %}
+        </select>
+        <select name="semt" id="semtSelect">
+            <option value="">Tüm Semtler / İlçeler</option>
+            {% if secilen_il and secilen_il in sehirler %}
+            {% for semt in sehirler[secilen_il] %}
+            <option value="{{ semt }}" {% if secilen_semt == semt %}selected{% endif %}>{{ semt }}</option>
+            {% endfor %}
+            {% endif %}
+        </select>
+        <button type="submit">Filtrele</button>
+    </form>
+</div>
+
+<!-- Şehir verisini gizli bir div içine Flask ile güvenle basıyoruz -->
+<div id="sehirVeriDeposu" data-sehirler='{{ sehirler | tojson | safe }}' style="display:none;"></div>
+
+<script>
+// Veriyi güvenli şekilde HTML'den alıyoruz (VS Code asla hata vermez)
+const sehirVerileri = JSON.parse(document.getElementById('sehirVeriDeposu').getAttribute('data-sehirler'));
+
+function ilcelerDoldur(){
+    const il = document.getElementById('ilSelect').value;
+    const semtSelect = document.getElementById('semtSelect');
+    semtSelect.innerHTML = '<option value="">Tüm Semtler / İlçeler</option>';
+    if(il && sehirVerileri[il]){
+        sehirVerileri[il].forEach(semt => {
+            let opt = document.createElement('option');
+            opt.value = semt;
+            opt.innerHTML = semt;
+            semtSelect.appendChild(opt);
+        });
+    }
+}
+
+// Robot Doğrulama Kontrolü
+function toggleGirisButton() {
+    const checkBox = document.getElementById('robotCheck');
+    const girisBtn = document.getElementById('girisBtn');
+    if (checkBox && checkBox.checked) {
+        girisBtn.classList.add('active');
+    } else if (girisBtn) {
+        girisBtn.classList.remove('active');
+    }
+}
+
+function siteyeGirisYap() {
+    const checkBox = document.getElementById('robotCheck');
+    if (checkBox && checkBox.checked) {
+        document.getElementById('welcomePopup').style.display = 'none';
+    }
+}
+</script>
+}
+
+// Robot Doğrulama Kontrolü
+function toggleGirisButton() {
+    const checkBox = document.getElementById('robotCheck');
+    const girisBtn = document.getElementById('girisBtn');
+    if (checkBox.checked) {
+        girisBtn.classList.add('active');
+    } else {
+        girisBtn.classList.remove('active');
+    }
+}
+
+function siteyeGirisYap() {
+    const checkBox = document.getElementById('robotCheck');
+    if (checkBox.checked) {
+        document.getElementById('welcomePopup').style.display = 'none';
+    }
+}
+</script>
+
+<div class="container" style="max-width:1200px;margin:auto;padding:20px;">
+    <h3 style="border-left:4px solid #ff4757;padding-left:10px;color:#fff;">Güncel İlanlar Vitrini</h3>
+    <div class="grid">
+        {% for ilan in ilanlar %}
+        <a href="/model/{{ ilan.id }}" class="card">
+            <div class="card-img-wrap">
+                <img src="{{ ilan.ana_gorsel }}" alt="{{ ilan.isim }}">
+                {% if ilan.sabit %}<span class="badge-sabit" title="Öne Çıkan Sabit İlan">⭐ Sabit</span>{% endif %}
+            </div>
+            <div class="card-info">
+                <div class="c-isim">{{ ilan.isim }}</div>
+                <div>📍 <b>İl / Semt:</b> {{ ilan.il }} / {{ ilan.semt }}</div>
+                <div>🏢 <b>Görüşme Yeri:</b> {{ ilan.gorusme }}</div>
+            </div>
+            <div class="tel-serit">💬 WhatsApp ile İletişim</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
